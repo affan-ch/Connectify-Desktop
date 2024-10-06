@@ -1,8 +1,9 @@
 
 "use client"
 import { ThemeToggle } from '@/components/theme-toggle'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,7 +11,36 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function LoginPage() {
-    const [showPassword, setShowPassword] = useState(false)
+    const [showPassword, setShowPassword] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            // Check token validity by making a request to your API
+            fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/details`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `${token}`,
+                },
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        // If the token is valid, redirect to dashboard
+                        router.push('/dashboard');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error verifying token:', error);
+                    // Optionally, you can remove the token if it's invalid
+                    localStorage.removeItem('token');
+                });
+        }
+    }, [router]);
+
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -39,6 +69,7 @@ export default function LoginPage() {
 
         console.log("Login submitted")
     }
+
 
     return (
         <div className='relative flex h-screen'>
