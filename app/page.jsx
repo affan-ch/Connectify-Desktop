@@ -61,7 +61,17 @@ export default function LoginPage() {
                 console.log('Success:', data)
                 const token = data['token']
                 localStorage.setItem('token', token)
-                window.location.href = '/dashboard'
+
+                const isTFAEnabled = data['isTFAEnabled']
+
+                if (isTFAEnabled) {
+                    window.location.href = '/tfa-verify'
+                    return
+                }
+                else {
+                    window.location.href = '/tfa-setup'
+                }
+
             })
             .catch((error) => {
                 console.error('Error:', error)
@@ -74,7 +84,7 @@ export default function LoginPage() {
     return (
         <div className='relative flex h-screen'>
             <div className='absolute top-4 right-4'>
-                <ThemeToggle/>
+                <ThemeToggle />
             </div>
             <Card className="w-1/4 m-auto min-w-[350px]">
                 <CardHeader className="space-y-1">
@@ -113,7 +123,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
                         </div>
-                        <Button className="w-full mt-4" type="submit">
+                        <Button className="w-full mt-4 font-semibold" type="submit">
                             Login
                         </Button>
                     </form>
@@ -128,6 +138,6 @@ export default function LoginPage() {
                 </CardFooter>
             </Card>
         </div>
-        
+
     )
 }
