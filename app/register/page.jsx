@@ -8,10 +8,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
 
 
 export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false)
+    const router = useRouter()
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -66,7 +68,7 @@ export default function RegisterPage() {
                 console.log('Success:', data)
                 // redirect to login page
                 alert("Account Created Successfully");
-                window.location.href = '/'
+                router.push('/')
             })
             .catch((error) => {
                 console.error('Error:', error);

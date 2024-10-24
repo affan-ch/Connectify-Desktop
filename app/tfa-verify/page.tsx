@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect, useContext } from 'react'
-import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,13 +13,13 @@ import { AuthContext } from '@/components/auth-context'
 import Loader from '@/components/loader'
 import { ThemeToggle } from '@/components/theme-toggle'
 
+
 export default function VerifyOTP() {
   const { userData, loading } = useContext(AuthContext)
   const [otp, setOtp] = useState<string[]>(Array(8).fill(''))
   const [error, setError] = useState<string | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
   const [trustDevice, setTrustDevice] = useState(true)
-  const router = useRouter()
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   // Move loading check to render phase instead of early return
@@ -82,11 +81,18 @@ export default function VerifyOTP() {
         body: JSON.stringify({ otp: otpString }),
       });
 
-      if (response.ok) {
-        // Redirect to dashboard if verification is successful
-        console.log('Verification successful');
-        console.log(response.body)
-        router.push('/dashboard')
+      if (response.status == 200) {
+        const data = await response.json();
+        
+        // clear the token from localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('deviceToken');
+
+        // Save the token in localStorage
+        localStorage.setItem('token', data.token);
+
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
       } else {
         // Handle error
         console.log('Verification failed');

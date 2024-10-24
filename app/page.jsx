@@ -1,45 +1,25 @@
 
 "use client"
 import { ThemeToggle } from '@/components/theme-toggle'
-import { useState, useEffect } from "react"
+import { useState, useContext } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { AuthContext } from '@/components/auth-context'
+import Loader from '@/components/loader'
 
 export default function LoginPage() {
+    const { loading, isOtpVerifed } = useContext(AuthContext)
     const [showPassword, setShowPassword] = useState(false);
-    const router = useRouter();
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
+    if (loading) return <Loader />;
 
-        if (token) {
-            // Check token validity by making a request to your API
-            fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/details`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `${token}`,
-                },
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.success) {
-                        // If the token is valid, redirect to dashboard
-                        router.push('/dashboard');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error verifying token:', error);
-                    // Optionally, you can remove the token if it's invalid
-                    localStorage.removeItem('token');
-                });
-        }
-    }, [router]);
+    if(isOtpVerifed){
+        window.location.href = '/dashboard'
+    }
 
 
     const handleSubmit = (event) => {
@@ -64,14 +44,15 @@ export default function LoginPage() {
 
                 const isTFAEnabled = data['isTFAEnabled']
 
-                if (isTFAEnabled) {
-                    window.location.href = '/tfa-verify'
-                    return
+                // Ensure token is set in localStorage, then redirect
+                if (localStorage.getItem('token')) {
+                    if (isTFAEnabled) {
+                        window.location.href = '/tfa-verify'
+                    }
+                    else {
+                        window.location.href = '/tfa-setup'
+                    }
                 }
-                else {
-                    window.location.href = '/tfa-setup'
-                }
-
             })
             .catch((error) => {
                 console.error('Error:', error)

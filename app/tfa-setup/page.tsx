@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useContext } from 'react'
+import { useState, useContext } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,7 +9,6 @@ import { useQRCode } from 'next-qrcode'
 import Loader from '@/components/loader'
 import { AuthContext } from '@/components/auth-context'
 import { ThemeToggle } from '@/components/theme-toggle'
-
 
 export default function TFASetup() {
   const { userData, loading } = useContext(AuthContext)
@@ -33,13 +32,21 @@ export default function TFASetup() {
       body: JSON.stringify({ otp: verificationCode }),
     });
 
-    if (response.ok) {
-      // Redirect to dashboard if verification is successful
-      console.log('Verification successful');
-      console.log(response.body)
+    if (response.status == 200) {
+      const data = await response.json();
+        
+        // clear the token from localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('deviceToken');
+
+        // Save the token in localStorage
+        localStorage.setItem('token', data.token);
+        
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
+      
     } else {
-      // Handle error
-      console.log('Verification failed');
+      alert('Invalid code. Please try again')
     }
   }
 

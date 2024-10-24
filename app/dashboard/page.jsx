@@ -1,30 +1,22 @@
 "use client"
-import { useContext } from 'react';
-import { AuthContext } from '@/components/auth-context';
-import Loader from '@/components/loader';
+import { AuthContext } from '@/components/auth-context'
+import { useState, useContext } from "react"
 
-export default function Dashboard() {
-    const { userData, loading } = useContext(AuthContext);
 
-    if (loading) {
-        return <Loader />;
-    }
+
+export default function DashboardPage() {
+    const { loading, userData } = useContext(AuthContext)
+
+    if (loading) return <p>Loading...</p>
 
     if (!userData) {
-        return <Loader />;
+        alert("You are not logged in")
     }
-
+    
     return (
         <div>
-            {userData ? (
-                <div>
-                    <h1>Welcome {userData.name}</h1>
-                    <p>Email: {userData.email}</p>
-                </div>
-            ) : (
-                <Loader />
-            )}
+            <h1>Dashboard</h1>
+            <p>This is the dashboard page</p>
         </div>
-    );
-
+    )
 }
