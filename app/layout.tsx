@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+"use client"
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-context"
@@ -15,10 +15,10 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "Connectify Desktop",
-  description: "Connectify Desktop is a versatile app built with Tauri and Next.js that syncs your mobile devices with your PC. Available for macOS, Windows, and Linux.",
-};
+// export const metadata: Metadata = {
+//   title: "Connectify Desktop",
+//   description: "Connectify Desktop is a versatile app built with Tauri and Next.js that syncs your mobile devices with your PC. Available for macOS, Windows, and Linux.",
+// };
 
 export default function RootLayout({
   children,

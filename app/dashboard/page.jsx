@@ -3,7 +3,6 @@ import { AuthContext } from '@/components/auth-context'
 import { useState, useContext } from "react"
 
 
-
 export default function DashboardPage() {
     const { loading, userData } = useContext(AuthContext)
 
@@ -12,11 +11,13 @@ export default function DashboardPage() {
     if (!userData) {
         alert("You are not logged in")
     }
+
+    // redirect to /dasboard/chat
+    window.location.href = '/dashboard/chat';
     
     return (
         <div>
-            <h1>Dashboard</h1>
-            <p>This is the dashboard page</p>
+            
         </div>
     )
 }

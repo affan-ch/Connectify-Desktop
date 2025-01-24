@@ -1,3 +1,4 @@
+"use client"
 import { invoke } from '@tauri-apps/api/core';
 
 export default async function getDeviceInfo() {
@@ -7,13 +8,13 @@ export default async function getDeviceInfo() {
 
       const dummyData = {
         device_type: 'desktop',
-        device_name: "Affan's MacBook",
-        model: 'MacBook Pro (15-inch, 2019)',
+        device_name: "Affan's MacBook Pro",
+        model: 'MacBookPro15,1',
         os_name: 'macOS',
-        os_version: '11.2.3',
-        uuid: '1234567890',
-        serial_number: 'C02Z12345678',
-        board_id: 'Mac-1234567890abcdef',
+        os_version: '15.1.1',
+        uuid: '50D7374B-BA01-5FBD-B765-6DA584E4DF20',
+        serial_number: 'C02YV05LLVCG',
+        board_id: 'Mac-937A206F2EE63C01',
         timezone: 'PKT',
         manufacturer: 'Apple Inc.',
       };
