@@ -1,6 +1,6 @@
-use std::process::Command;
 use regex::Regex;
 use serde::Serialize;
+use std::process::Command;
 
 #[derive(Serialize)]
 pub struct DeviceInfo {
@@ -24,7 +24,6 @@ impl DeviceInfo {
 
         #[cfg(target_os = "linux")]
         return DeviceInfo::get_linux_system_info();
-
     }
 
     #[cfg(target_os = "macos")]
@@ -37,7 +36,8 @@ impl DeviceInfo {
         let ioreg_output = get_output_of_command("ioreg", &["-l"]);
 
         let uuid = extract_field(&ioreg_output, r#""IOPlatformUUID"\s*=\s*"([A-F0-9\-]+)""#);
-        let serial_number = extract_field(&ioreg_output, r#""IOPlatformSerialNumber"\s*=\s*"([^"]+)""#);
+        let serial_number =
+            extract_field(&ioreg_output, r#""IOPlatformSerialNumber"\s*=\s*"([^"]+)""#);
         let model = extract_field(&ioreg_output, r#""model"\s*=\s*<"([^"]+)">"#);
         let board_id = extract_field(&ioreg_output, r#""board-id"\s*=\s*<"([^"]+)">"#);
         let manufacturer = extract_field(&ioreg_output, r#""manufacturer"\s*=\s*<"([^"]+)">"#);
@@ -63,7 +63,9 @@ impl DeviceInfo {
 
         // Get the full output from lsb_release and then extract the version
         let os_version_output = get_output_of_command("lsb_release", &["-d"]);
-        let os_version = extract_field(&os_version_output, r#"Description:\s*(.*)"#).trim().to_string();
+        let os_version = extract_field(&os_version_output, r#"Description:\s*(.*)"#)
+            .trim()
+            .to_string();
 
         let device_name = get_output_of_command("hostname", &[]);
         let timezone = get_output_of_command("cat", &["/etc/timezone"]);
@@ -88,7 +90,6 @@ impl DeviceInfo {
             manufacturer,
         }
     }
-
 }
 
 fn get_output_of_command(cmd: &str, args: &[&str]) -> String {
@@ -97,13 +98,18 @@ fn get_output_of_command(cmd: &str, args: &[&str]) -> String {
         .output()
         .expect("Failed to execute command");
 
-    String::from_utf8_lossy(&output.stdout).to_string().trim().to_string()
+    String::from_utf8_lossy(&output.stdout)
+        .to_string()
+        .trim()
+        .to_string()
 }
 
 fn extract_field(output: &str, pattern: &str) -> String {
     let re = Regex::new(pattern).unwrap();
     if let Some(captures) = re.captures(output) {
-        captures.get(1).map_or("Unknown".to_string(), |m| m.as_str().to_string())
+        captures
+            .get(1)
+            .map_or("Unknown".to_string(), |m| m.as_str().to_string())
     } else {
         "Unknown".to_string()
     }

@@ -1,4 +1,3 @@
-
 "use client"
 import { ThemeToggle } from '@/components/theme-toggle'
 import { useState, useContext } from "react"
@@ -10,17 +9,21 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { AuthContext } from '@/components/auth-context'
 import Loader from '@/components/loader'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
+
     const { loading, isOtpVerifed } = useContext(AuthContext)
     const [showPassword, setShowPassword] = useState(false);
+    const router = useRouter()
 
     if (loading) return <Loader />;
 
     if(isOtpVerifed){
-        window.location.href = '/dashboard'
-    }
+        // window.location.href = '/dashboard'
+        router.push('/dashboard')
 
+    }
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -47,11 +50,13 @@ export default function LoginPage() {
                 // Ensure token is set in localStorage, then redirect
                 if (localStorage.getItem('token')) {
                     if (isTFAEnabled) {
-                        window.location.href = '/tfa-verify'
+                        // window.location.href = '/tfa-verify'
+                        router.push('/tfa-verify')
                     }
                     else {
-                        window.location.href = '/tfa-setup'
-                    }
+                        // window.location.href = '/tfa-setup'
+                        router.push('/tfa-setup')
+                      }
                 }
             })
             .catch((error) => {

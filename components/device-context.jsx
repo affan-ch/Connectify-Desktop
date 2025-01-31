@@ -35,7 +35,7 @@ export const DeviceProvider = ({ children }) => {
                         body: JSON.stringify(deviceInfo),
                     });
 
-                    if (deviceResponse.status === 200) {
+                    if (deviceResponse.status == 200) {
                         const deviceData = await deviceResponse.json();
                         localStorage.setItem('deviceToken', deviceData.deviceToken);
                         console.log('Device registered successfully');
@@ -70,6 +70,7 @@ export const DeviceProvider = ({ children }) => {
                         if (result.success) {
                             console.log('Device verified successfully');
                             // Continue to dashboard or wherever user was heading
+                            localStorage.setItem('devices', JSON.stringify(result.devices));
                         } else {
                             console.log('Device verification failed');
                             localStorage.removeItem('token');

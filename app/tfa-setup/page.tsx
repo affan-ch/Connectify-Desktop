@@ -9,11 +9,13 @@ import { useQRCode } from 'next-qrcode'
 import Loader from '@/components/loader'
 import { AuthContext } from '@/components/auth-context'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { useRouter } from 'next/navigation'
 
 export default function TFASetup() {
   const { userData, loading } = useContext(AuthContext)
   const [verificationCode, setVerificationCode] = useState<string>('')
   const { SVG } = useQRCode()
+  const router = useRouter()
 
   const handleVerificationCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setVerificationCode(e.target.value)
@@ -43,7 +45,8 @@ export default function TFASetup() {
         localStorage.setItem('token', data.token);
         
         // Redirect to dashboard
-        window.location.href = '/dashboard';
+        // window.location.href = '/dashboard';
+        router.push('/dashboard')
       
     } else {
       alert('Invalid code. Please try again')

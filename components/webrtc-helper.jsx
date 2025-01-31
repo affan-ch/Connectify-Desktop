@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useRef, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
 const WebRTCContext = createContext();
 
-export const WebRTCProvider = ({ children }) => {
+export const WebRTCProvider = ({ children, devices }) => {
   const [offerSdp, setOfferSdp] = useState('');
   const [answerSdp, setAnswerSdp] = useState('');
   const [message, setMessage] = useState([]);
@@ -12,9 +12,28 @@ export const WebRTCProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const peerConnectionRef = useRef(null);
   const dataChannelRef = useRef(null);
+  const [loginToken, setLoginToken] = useState('');
+  const [deviceToken, setDeviceToken] = useState('');
+
+  useEffect(() => {
+    if (offerSdp) {
+      if (devices) {
+        for (let device of devices) {
+          if (device.deviceType == "mobile") {
+            console.log('Sending offer to device:', device.id);
+            socket.emit('webrtc_offer', { loginToken, deviceToken, offer: offerSdp, targetDeviceId: device.id });
+          }
+        }
+      }
+    }
+  }, [offerSdp, devices]);
+
 
   // Establish a connection and create WebRTC offer
   const initializeConnection = async (loginToken, deviceToken) => {
+    setLoginToken(loginToken);
+    setDeviceToken(deviceToken);
+
     const config = {
       iceServers: [
         {
@@ -43,7 +62,15 @@ export const WebRTCProvider = ({ children }) => {
       setReceivedMessages((prev) => [...prev, message]);
 
     }
-    dataChannelRef.current.onclose = () => console.log('Data channel is closed');
+    dataChannelRef.current.onclose = () => {
+      console.log('Data channel is closed');
+      peerConnectionRef.current.close();
+      setAnswerSdp('');
+      dataChannelRef.current = null;
+      peerConnectionRef.current = null;
+      setOfferSdp('');
+      setIceCandidates([]);
+    }
 
     const offer = await peerConnectionRef.current.createOffer();
     await peerConnectionRef.current.setLocalDescription(offer);
@@ -57,8 +84,13 @@ export const WebRTCProvider = ({ children }) => {
     // Register user
     socketInstance.emit('register', { loginToken, deviceToken });
 
-    // Send offer SDP via socket
-    socketInstance.emit('webrtc_offer', { loginToken, deviceToken, offer: offerSdpString, targetDeviceId: '2bdb5875-cf7b-496b-995c-8146ee2d3b70' });
+    socketInstance.on('mobile_connected', async (data) => {
+      console.log('Mobile is online and waiting for offer');
+      const { deviceId } = data;
+
+      // Send offer SDP via socket
+      socketInstance.emit('webrtc_offer', { loginToken, deviceToken, offer: offerSdpString, targetDeviceId: deviceId });
+    });
 
     socketInstance.on('webrtc_answer', async (data) => {
       const { answer } = data;
@@ -67,7 +99,7 @@ export const WebRTCProvider = ({ children }) => {
       let { sdp } = JSON.parse(answer);
 
       await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription({ type: "answer", sdp }));
-      
+
       iceCandidates.forEach((candidate) => {
         peerConnectionRef.current.addIceCandidate(candidate);
       });

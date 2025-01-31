@@ -65,7 +65,8 @@ export const AuthProvider = ({ children }) => {
         }
         else{
           if (pathname === '/tfa-verify' || pathname === '/tfa-setup' || pathname === '/') {
-            window.location.href = '/dashboard';
+            // window.location.href = '/dashboard';
+            router.push('/dashboard');
           }
         }
       } catch (error) {
