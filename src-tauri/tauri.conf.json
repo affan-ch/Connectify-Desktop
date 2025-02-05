@@ -19,7 +19,10 @@
         "minHeight": 400,
         "resizable": true,
         "fullscreen": false,
-        "skipTaskbar": false
+        "skipTaskbar": false,
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
       }
     ],
     "security": {

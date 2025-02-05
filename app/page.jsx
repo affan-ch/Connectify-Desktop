@@ -51,12 +51,12 @@ export default function LoginPage() {
         // Ensure token is set in localStorage, then redirect
         if (localStorage.getItem('token')) {
           if (isTFAEnabled) {
-            // window.location.href = '/tfa-verify'
-            router.push('/tfa-verify')
+            window.location.href = '/tfa-verify'
+            // router.push('/tfa-verify')
           }
           else {
-            // window.location.href = '/tfa-setup'
-            router.push('/tfa-setup')
+            window.location.href = '/tfa-setup'
+            // router.push('/tfa-setup')
           }
         }
       })

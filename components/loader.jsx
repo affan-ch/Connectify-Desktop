@@ -22,6 +22,13 @@ const Loader = () => {
             animation: l46 1s infinite;
             }
 
+            /* Dark Mode */
+            @media (prefers-color-scheme: dark) {
+            .loader {
+                --_g: no-repeat radial-gradient(farthest-side, #fff 90%, #0000);
+            }
+            }
+
             @keyframes l46 {
             0% {
                 background-position: 0 0, 100% 0, 100% 100%, 0 100%;

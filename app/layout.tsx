@@ -2,6 +2,7 @@
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-context"
+import CustomTitleBar from "@/lib/titlebar"
 import "./globals.css";
 
 const geistSans = localFont({
@@ -28,8 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen overflow-hidden`}
       >
+        <CustomTitleBar />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -37,7 +39,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <div className="h-full overflow-auto pt-10">
             {children}
+            </div>
           </AuthProvider>
         </ThemeProvider>
       </body>
