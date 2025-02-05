@@ -4,29 +4,27 @@
 mod device_info;
 use device_info::DeviceInfo;
 use tauri::command;
-use tauri::WindowEvent;
-use tauri::Manager;
 
 #[command]
 fn get_device_info() -> DeviceInfo {
     DeviceInfo::get_device_info()
 }
 
+#[tauri::command]
+fn hide_taskbar_icon(app_handle: tauri::AppHandle) {
+    let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Accessory); // Hide from taskbar
+}
+
+#[tauri::command]
+fn show_taskbar_icon(app_handle: tauri::AppHandle) {
+    let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular); // Restore to default
+}
+
 fn main() {
     // app_lib::run();
     tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
-        .on_window_event(|_window, event| {
-            match event {
-                WindowEvent::CloseRequested { api, .. } => {
-                    // window.hide().unwrap();
-                    // window.minimize().unwrap();
-                    api.prevent_close();
-                }
-                
-                _ => {}
-            }
-        })
+        
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_sql::Builder::new().build())
@@ -36,28 +34,15 @@ fn main() {
             {
                 use tauri_plugin_autostart::MacosLauncher;
                 use tauri_plugin_autostart::ManagerExt;
-                use tauri_plugin_notification::NotificationExt;
-                use tauri::menu::{Menu, MenuItem};
-                use tauri::tray::TrayIconBuilder;
-
-                // let main_window = app.get_webview_window("main");
-
-                let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-                let menu = Menu::with_items(app, &[&quit_i])?;
-
-                let _tray = TrayIconBuilder::new()
-                    .icon(app.default_window_icon().unwrap().clone())
-                    .menu(&menu)
-                    .menu_on_left_click(true)
-                    .build(app)?;
+                // use tauri_plugin_notification::NotificationExt;
 
                 // Notification
-                app.notification()
-                    .builder()
-                    .title("Tauri")
-                    .body("Tauri is awesome")
-                    .show()
-                    .unwrap();
+                // app.notification()
+                //     .builder()
+                //     .title("Tauri")
+                //     .body("Tauri is awesome")
+                //     .show()
+                //     .unwrap();
 
                 // Autostart on Login
                 let _ = app.handle().plugin(tauri_plugin_autostart::init(
@@ -80,7 +65,8 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_device_info])
+        .invoke_handler(tauri::generate_handler![get_device_info, hide_taskbar_icon, show_taskbar_icon])
+
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

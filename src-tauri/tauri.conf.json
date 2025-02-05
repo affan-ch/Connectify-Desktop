@@ -15,8 +15,11 @@
         "title": "Connectify",
         "width": 800,
         "height": 600,
+        "minWidth": 500,
+        "minHeight": 400,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "skipTaskbar": false
       }
     ],
     "security": {
@@ -52,7 +55,8 @@
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
-      "icons/icon.ico"
+      "icons/icon.ico",
+      "icons/connectify.png"
     ]
   }
 }

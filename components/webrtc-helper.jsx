@@ -28,11 +28,17 @@ export const WebRTCProvider = ({ children, devices }) => {
     }
   }, [offerSdp, devices]);
 
+  const clearWebRTC = () => {
+    peerConnectionRef.current = null;
+    dataChannelRef.current = null;
+    setOfferSdp('');
+    setAnswerSdp('');
+    setIceCandidates([]);
+    setReceivedMessages([]);
+    setMessage([]);
+  };
 
-  // Establish a connection and create WebRTC offer
-  const initializeConnection = async (loginToken, deviceToken) => {
-    setLoginToken(loginToken);
-    setDeviceToken(deviceToken);
+  const setupWebRTC = async () => {
 
     const config = {
       iceServers: [
@@ -64,12 +70,7 @@ export const WebRTCProvider = ({ children, devices }) => {
     }
     dataChannelRef.current.onclose = () => {
       console.log('Data channel is closed');
-      peerConnectionRef.current.close();
-      setAnswerSdp('');
-      dataChannelRef.current = null;
-      peerConnectionRef.current = null;
-      setOfferSdp('');
-      setIceCandidates([]);
+      clearWebRTC();
     }
 
     const offer = await peerConnectionRef.current.createOffer();
@@ -77,21 +78,41 @@ export const WebRTCProvider = ({ children, devices }) => {
     const offerSdpString = JSON.stringify(peerConnectionRef.current.localDescription);
     setOfferSdp(offerSdpString);
 
+    return offerSdpString;
+  };
+
+
+  // Establish a connection and create WebRTC offer
+  const initializeConnection = async (loginToken, deviceToken) => {
+    setLoginToken(loginToken);
+    setDeviceToken(deviceToken);
+
     // Establish socket connection
-    const socketInstance = io('http://localhost:8006');
+    const socketInstance = io(process.env.NEXT_PUBLIC_SERVER_URL);
     setSocket(socketInstance);
+
+    // Setup WebRTC
+    clearWebRTC();
+    await setupWebRTC();
 
     // Register user
     socketInstance.emit('register', { loginToken, deviceToken });
 
+    // Mobile connected event
     socketInstance.on('mobile_connected', async (data) => {
       console.log('Mobile is online and waiting for offer');
       const { deviceId } = data;
 
+      clearWebRTC();
+      const offerSdpString = await setupWebRTC();
+      console.log('Offer SDP:', offerSdpString);
+
       // Send offer SDP via socket
       socketInstance.emit('webrtc_offer', { loginToken, deviceToken, offer: offerSdpString, targetDeviceId: deviceId });
+
     });
 
+    // Handle WebRTC answer
     socketInstance.on('webrtc_answer', async (data) => {
       const { answer } = data;
       console.log('Received WebRTC answer:', JSON.parse(answer));
