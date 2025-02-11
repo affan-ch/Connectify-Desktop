@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
           // 2. If token is not valid, redirect to login and clear token
           localStorage.removeItem('token');
           localStorage.removeItem('deviceToken');
+          localStorage.removeItem('devices');
           router.push('/');
           return;
         }
@@ -74,6 +75,7 @@ export const AuthProvider = ({ children }) => {
         // Clear the token on error and redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('deviceToken');
+        localStorage.removeItem('devices');
         router.push('/');
       } finally {
         setLoading(false); // Loading ends after the token check

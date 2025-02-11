@@ -10,16 +10,14 @@ import { Wifi, Battery, Bluetooth, Volume2, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import NotificationPanel from "@/components/notification-panel";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 // import { useWebRTC } from '@/components/webrtc-helper';
 // import { useEffect, useState } from "react";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
-  const notifications = [
-            { app: "Telegram", time: "5 min ago", text: "Enter a message", action: "Mark as read" },
-        ]
 
     // const [messages, setMessages] = useState([]);
 
@@ -58,7 +56,7 @@ export default function DashboardLayout({ children }) {
         <div>
                 <div className="flex h-screen">
                     {/* Left Sidebar */}
-                    <div className="w-64 border-r bg-gray-50">
+                    <div className="w-65 border-r bg-gray-50">
                         {/* Phone Details Section */}
                         <Card className="rounded-none border-none shadow-none">
                             <CardHeader className="pb-2">
@@ -90,36 +88,8 @@ export default function DashboardLayout({ children }) {
                         </Card>
 
                         {/* Notifications Panel */}
-                        <Card className="rounded-none border-none shadow-none">
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-lg flex items-center justify-between">
-                                    Notifications
-                                    {/* <Button variant="ghost" size="sm" className="text-muted-foreground">
-                                        ...
-                                    </Button> */}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <ScrollArea className="h-[calc(100vh-250px)]">
-                                    {/* {notifications.map((notification, index) => (
-                                        <div key={index} className="mb-4 last:mb-0 p-3 rounded-lg">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className="font-medium">{notification.app}</span>
-                                                <span className="text-xs text-muted-foreground">{notification.time}</span>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground">{notification.text}</p>
-                                            {notification.action && (
-                                                <div className="mt-2">
-                                                    <Button variant="link" className="p-0 h-auto text-sm text-blue-500">
-                                                        {notification.action}
-                                                    </Button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))} */}
-                                </ScrollArea>
-                            </CardContent>
-                        </Card>
+                        <NotificationPanel />
+                        
                     </div>
 
                     {/* Main Content */}
@@ -133,7 +103,7 @@ export default function DashboardLayout({ children }) {
                                         <Badge variant="secondary" className="ml-2">1</Badge>
                                     </TabsTrigger>
 
-                                    <TabsTrigger value="messages" className="text-base">
+                                    <TabsTrigger value="messages" className="text-base" onClick={() => router.push("/dashboard/message")}>
                                         <MessageSquareText className="h-5 w-5 mr-2" />
                                         Messages
                                         <Badge variant="secondary" className="ml-2">1</Badge>

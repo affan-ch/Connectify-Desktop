@@ -75,12 +75,14 @@ export const DeviceProvider = ({ children }) => {
                             console.log('Device verification failed');
                             localStorage.removeItem('token');
                             localStorage.removeItem('deviceToken');
+                            localStorage.removeItem('devices');
                             router.push('/'); // Redirect to login if verification fails
                         }
                     } else {
                         console.log('Error verifying device');
                         localStorage.removeItem('token');
                         localStorage.removeItem('deviceToken');
+                        localStorage.removeItem('devices');
                         router.push('/'); // Redirect to login on failure
                     }
                 } catch (error) {
