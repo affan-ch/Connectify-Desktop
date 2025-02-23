@@ -11,14 +11,17 @@ fn get_device_info() -> DeviceInfo {
 }
 
 #[tauri::command]
-fn hide_taskbar_icon(app_handle: tauri::AppHandle) {
-    let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Accessory); // Hide from taskbar
+fn hide_taskbar_icon(_app_handle: tauri::AppHandle) {
+    #[cfg(target_os = "macos")]
+    let _ = _app_handle.set_activation_policy(tauri::ActivationPolicy::Accessory); // Hide from taskbar
 }
 
 #[tauri::command]
-fn show_taskbar_icon(app_handle: tauri::AppHandle) {
-    let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular); // Restore to default
+fn show_taskbar_icon(_app_handle: tauri::AppHandle) {
+    #[cfg(target_os = "macos")]
+    let _ = _app_handle.set_activation_policy(tauri::ActivationPolicy::Regular); // Restore to default
 }
+
 
 fn main() {
     // app_lib::run();

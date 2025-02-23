@@ -1,3 +1,4 @@
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 use regex::Regex;
 use serde::Serialize;
 use std::process::Command;
@@ -24,6 +25,9 @@ impl DeviceInfo {
 
         #[cfg(target_os = "linux")]
         return DeviceInfo::get_linux_system_info();
+
+        #[cfg(target_os = "windows")]
+        return DeviceInfo::get_windows_system_info();
     }
 
     #[cfg(target_os = "macos")]
@@ -90,6 +94,34 @@ impl DeviceInfo {
             manufacturer,
         }
     }
+
+    #[cfg(target_os = "windows")]
+    fn get_windows_system_info() -> DeviceInfo {
+        let device_type = "desktop".to_string();
+        let os_name = "Windows".to_string();
+
+        let os_version = get_output_of_command("wmic", &["os", "get", "Caption"]);
+        let device_name = get_output_of_command("hostname", &[]);
+        let timezone = get_output_of_command("wmic", &["timezone", "get", "Description"]);
+        let model = get_output_of_command("wmic", &["computersystem", "get", "Model"]);
+        let uuid = get_output_of_command("wmic", &["csproduct", "get", "UUID"]);
+        let serial_number = get_output_of_command("wmic", &["bios", "get", "SerialNumber"]);
+        let board_id = get_output_of_command("wmic", &["baseboard", "get", "SerialNumber"]);
+        let manufacturer = get_output_of_command("wmic", &["computersystem", "get", "Manufacturer"]);
+
+        DeviceInfo {
+            device_type,
+            os_name,
+            os_version,
+            model,
+            device_name,
+            uuid,
+            serial_number,
+            board_id,
+            timezone,
+            manufacturer,
+        }
+    }
 }
 
 fn get_output_of_command(cmd: &str, args: &[&str]) -> String {
@@ -104,6 +136,7 @@ fn get_output_of_command(cmd: &str, args: &[&str]) -> String {
         .to_string()
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn extract_field(output: &str, pattern: &str) -> String {
     let re = Regex::new(pattern).unwrap();
     if let Some(captures) = re.captures(output) {
