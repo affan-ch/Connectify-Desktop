@@ -107,7 +107,8 @@ impl DeviceInfo {
         let uuid = get_output_of_command("wmic", &["csproduct", "get", "UUID"]);
         let serial_number = get_output_of_command("wmic", &["bios", "get", "SerialNumber"]);
         let board_id = get_output_of_command("wmic", &["baseboard", "get", "SerialNumber"]);
-        let manufacturer = get_output_of_command("wmic", &["computersystem", "get", "Manufacturer"]);
+        let manufacturer =
+            get_output_of_command("wmic", &["computersystem", "get", "Manufacturer"]);
 
         DeviceInfo {
             device_type,

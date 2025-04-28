@@ -80,14 +80,16 @@ const ChatPage = () => {
     sendMessage(JSON.stringify(newMessage));
   };
 
+  const chatRef = useRef(null);
+
   return (
     <div className="flex items-center justify-center">
-      <div className="flex flex-col h-[700px] w-[500px] mx-auto border rounded-lg overflow-hidden">
+      <div className="flex flex-col h-[91vh] w-full mx-auto rounded-lg overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message) => (
             <MessageBubble key={message.timestamp} message={message} />
           ))}
-          <div ref={useRef(null)} />
+          <div ref={chatRef} />
         </div>
         <form
           onSubmit={(e) => {

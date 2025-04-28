@@ -1,26 +1,25 @@
-"use client"
-import { AuthContext } from '@/components/auth-context'
-import { useState, useContext } from "react"
-import { useRouter } from 'next/navigation'
+'use client'
 
+import { AuthContext } from '@/components/auth-context'
+import { useState, useContext, useEffect } from "react"
+import { useRouter } from 'next/navigation'
 
 export default function DashboardPage() {
     const { loading, userData } = useContext(AuthContext)
     const router = useRouter()
 
+    useEffect(() => {
+        if (!loading) {
+            if (!userData) {
+                alert("You are not logged in")
+            }
+            // Redirect after checking auth
+            router.push('/dashboard/chat')
+        }
+    }, [loading, userData, router])
+
     if (loading) return <p>Loading...</p>
 
-    if (!userData) {
-        alert("You are not logged in")
-    }
-
-    // redirect to /dasboard/chat
-    // window.location.href = '/dashboard/chat';
-    router.push('/dashboard/chat')
-    
-    return (
-        <div>
-            
-        </div>
-    )
+    // Optionally render nothing because user will be redirected
+    return null
 }

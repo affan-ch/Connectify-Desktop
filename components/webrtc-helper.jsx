@@ -112,6 +112,13 @@ export const WebRTCProvider = ({ children, devices }) => {
 
     });
 
+    socketInstance.on('mobile_disconnected', (data) => {
+      const { deviceId } = data;
+      console.log('Mobile disconnected with ID:', deviceId);
+      clearWebRTC();
+    });
+
+
     // Handle WebRTC answer
     socketInstance.on('webrtc_answer', async (data) => {
       const { answer } = data;

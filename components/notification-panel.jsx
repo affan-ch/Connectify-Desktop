@@ -72,18 +72,18 @@ export default function NotificationPanel() {
     return (
         <>
             {/* Notifications Panel */}
-            <Card className="rounded-none border-none shadow-none">
-                <CardHeader className="pb-2">
+            <Card className="rounded-none border-none shadow-none bg-gray-50">
+                <CardHeader className="pb-2 pr-2">
                     <CardTitle className="text-lg flex items-center justify-between">
                         Notifications
 
-                        <Button size="sm" variant="ghost" className="text-muted-foreground">
+                        {/* <Button size="sm" variant="ghost" className="text-muted-foreground">
                             <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ScrollArea className="h-[calc(100vh-250px)]">
+                    <div className="h-[calc(100vh-300px)] overflow-hidden hover:overflow-y-auto scrollbar-hide">
                         {notifications.map((notification, index) => (
                             <div key={index} className="mb-4 last:mb-0 p-3 rounded-lg">
                                 <div className="flex items-center justify-between mb-1">
@@ -101,7 +101,7 @@ export default function NotificationPanel() {
                                 )}
                             </div>
                         ))}
-                    </ScrollArea>
+                    </div>
                 </CardContent>
             </Card>
         </>

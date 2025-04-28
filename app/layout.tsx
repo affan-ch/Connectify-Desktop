@@ -29,9 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <CustomTitleBar />
+        {/* <CustomTitleBar /> */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -39,7 +39,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <div className="h-full overflow-auto pt-10">
+            <div className="h-screen overflow-hidden">
             {children}
             </div>
           </AuthProvider>

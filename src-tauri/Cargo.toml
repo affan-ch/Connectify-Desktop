@@ -1,10 +1,10 @@
 [package]
 name = "Connectify"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Connectify Desktop is a versatile app built with Tauri and Next.js that syncs your mobile devices with your PC. Available for macOS, Windows, and Linux."
+authors = ["Affan Ch."]
 license = ""
-repository = ""
+repository = "https://github.com/affan-ch/Connectify-Desktop"
 edition = "2021"
 rust-version = "1.77.2"
 
@@ -25,9 +25,10 @@ tauri = { version = "2.0.1", features = ["tray-icon", "image-png"] }
 tauri-plugin-log = "2.0.0-rc"
 regex = "1.11.0"
 tauri-plugin-notification = "2"
-tauri-plugin-sql = "2"
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
 tauri-plugin-opener = "2"
 tauri-plugin-fs = "2"
+tauri-plugin-os = "2"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-autostart = "2"
