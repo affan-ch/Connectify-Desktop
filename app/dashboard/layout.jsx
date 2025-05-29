@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }) {
             <Tabs defaultValue="chat" className="w-full">
               <div className="flex justify-between items-center p-4">
                 <TabsList className="bg-white">
-                  <TabsTrigger value="chat" className="text-base" onClick={() => router.push("/dashboard/chat")}>
+                  <TabsTrigger value="chat" className="text-base" onClick={() => router.push("/dashboard")}>
                     <Send className="h-5 w-5 mr-2" />
                     Chat
                     <Badge variant="secondary" className="ml-2">1</Badge>

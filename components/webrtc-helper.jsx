@@ -15,12 +15,18 @@ export const WebRTCProvider = ({ children, devices }) => {
   const [loginToken, setLoginToken] = useState('');
   const [deviceToken, setDeviceToken] = useState('');
 
+  const [postedNotifications, setPostedNotifications] = useState([]);
+  const [allActiveNotifications, setAllActiveNotifications] = useState([]);
+  const [removedNotifications, setRemovedNotifications] = useState([]);
+  const [deviceInfo, setDeviceInfo] = useState('');
+
   useEffect(() => {
     if (offerSdp) {
       if (devices) {
         for (let device of devices) {
           if (device.deviceType == "mobile") {
-            console.log('Sending offer to device:', device.id);
+            console.log('Sending offer to device from useEffect:', device.id);
+
             socket.emit('webrtc_offer', { loginToken, deviceToken, offer: offerSdp, targetDeviceId: device.id });
           }
         }
@@ -36,6 +42,10 @@ export const WebRTCProvider = ({ children, devices }) => {
     setIceCandidates([]);
     setReceivedMessages([]);
     setMessage([]);
+    setPostedNotifications([]);
+    setAllActiveNotifications([]);
+    setRemovedNotifications([]);
+    setDeviceInfo('');
   };
 
   const setupWebRTC = async () => {
@@ -43,7 +53,7 @@ export const WebRTCProvider = ({ children, devices }) => {
     const config = {
       iceServers: [
         {
-          urls: 'turn:68.183.132.84:3478?transport=udp',
+          urls: 'turn:68.183.132.84:3478',
           username: 'myturnserveruser',
           credential: 'PaswordOfSomethingScary69',
         },
@@ -62,16 +72,27 @@ export const WebRTCProvider = ({ children, devices }) => {
     // Create data channel and handle its state
     dataChannelRef.current = peerConnectionRef.current.createDataChannel('sendChannel');
     dataChannelRef.current.onopen = () => console.log('Data channel is open');
-    dataChannelRef.current.onmessage = (event) => {
-      let message = JSON.parse(event.data);
-      console.log('Received message:', message);
-      setReceivedMessages((prev) => [...prev, message]);
-
-    }
     dataChannelRef.current.onclose = () => {
       console.log('Data channel is closed');
       clearWebRTC();
     }
+    dataChannelRef.current.onmessage = (event) => {
+      let message = JSON.parse(event.data);
+      console.log('Received message:', message);
+
+      if (message.type === 'Notification:Posted') {
+        setPostedNotifications((prev) => [...prev, message]);
+      } else if (message.type === 'Notification:Removed') {
+        setRemovedNotifications((prev) => [...prev, message]);
+      } else if (message.type === 'Notification:AllActive') {
+        setAllActiveNotifications([message]);
+      } else if (message.type === 'DeviceStateInfo') {
+        setDeviceInfo(message);
+      } else {
+        setReceivedMessages((prev) => [...prev, message]);
+      }
+    }
+
 
     const offer = await peerConnectionRef.current.createOffer();
     await peerConnectionRef.current.setLocalDescription(offer);
@@ -148,7 +169,6 @@ export const WebRTCProvider = ({ children, devices }) => {
   const sendMessage = (text) => {
     if (dataChannelRef.current?.readyState === 'open') {
       dataChannelRef.current.send(text);
-      // setReceivedMessages((prev) => [...prev, JSON.parse(text)]);
     } else {
       console.error('Data channel is not open');
     }
@@ -165,6 +185,10 @@ export const WebRTCProvider = ({ children, devices }) => {
         answerSdp,
         message,
         setMessage,
+        postedNotifications,
+        allActiveNotifications,
+        removedNotifications,
+        deviceInfo,
       }}
     >
       {children}
