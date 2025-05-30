@@ -85,8 +85,10 @@ export const WebRTCProvider = ({ children, devices }) => {
       } else if (message.type === 'Notification:Removed') {
         setRemovedNotifications((prev) => [...prev, message]);
       } else if (message.type === 'Notification:AllActive') {
+        console.log("All Active Notifications:", message);
         setAllActiveNotifications([message]);
       } else if (message.type === 'DeviceStateInfo') {
+        console.log("Device State Info:", message);
         setDeviceInfo(message);
       } else {
         setReceivedMessages((prev) => [...prev, message]);

@@ -34,12 +34,127 @@ fn main() {
             version: 1,
             description: "initial_schema_setup",
             sql: "
-                CREATE TABLE IF NOT EXISTS icons (
+                CREATE TABLE IF NOT EXISTS app_icons (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    packageName TEXT NOT NULL,
+                    appName TEXT NOT NULL, -- Name of the application (WhatsApp Business)
+                    packageName TEXT NOT NULL, -- Package name of the application (com.whatsapp.w4b)
                     packageVersion TEXT NOT NULL,
-                    appIconBase64 TEXT NOT NULL
+                    appIconBase64 TEXT NOT NULL,
+                    updatedAt INTEGER DEFAULT (strftime('%s', 'now')),
+                    UNIQUE(packageName, packageVersion)
                 );
+                
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    content TEXT,
+                    isGroup INTEGER NOT NULL DEFAULT 0,
+                    groupKey TEXT,
+                    actions TEXT, 
+                    iconId INTEGER NOT NULL,
+                    postTime INTEGER NOT NULL,
+                    FOREIGN KEY (iconId) REFERENCES app_icons(id) ON DELETE CASCADE
+                );
+                
+                CREATE INDEX IF NOT EXISTS idx_notifications_iconId ON notifications(iconId);
+                
+                CREATE TABLE IF NOT EXISTS settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    key TEXT NOT NULL UNIQUE,
+                    value TEXT NOT NULL
+                );
+                
+                CREATE TABLE IF NOT EXISTS chat(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    content TEXT NOT NULL,
+                    sender INTEGER NOT NULL,
+                    contentType INTEGER NOT NULL, -- 0: Text, 1: Image, 2: Video, 3: Audio, 4: File
+                    filePath TEXT,
+                    timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_chat_timestamp ON chat(timestamp);
+                
+                CREATE TABLE IF NOT EXISTS contacts(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    firstName TEXT NOT NULL,
+                    lastName TEXT,
+                    phoneNumber TEXT NOT NULL,
+                    email TEXT,
+                    company TEXT,
+                    dob TEXT,
+                    address TEXT,
+                    notes TEXT,
+                    createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+                );
+
+                CREATE TABLE IF NOT EXISTS contact_photos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    contactId INTEGER NOT NULL,
+                    photoBase64 TEXT NOT NULL,
+                    FOREIGN KEY (contactId) REFERENCES contacts(id) ON DELETE CASCADE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_contact_photos_contactId ON contact_photos(contactId);
+                
+                CREATE TABLE IF NOT EXISTS messages(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    phoneNumber TEXT NOT NULL,
+                    contactName TEXT NOT NULL, -- Name of the contact or group
+                    content TEXT NOT NULL,
+                    contentType INTEGER NOT NULL, -- 0: Text, 1: Image, 2: Video, 3: Audio, 4: File
+                    sender INTEGER NOT NULL,
+                    status INTEGER NOT NULL DEFAULT 0, -- 0: Sent, 1: Delivered, 2: Seen
+                    isRead INTEGER NOT NULL DEFAULT 0, -- For Syncing the read status back to Android
+                    simSlot INTEGER NOT NULL DEFAULT 0,
+                    threadId INTEGER NOT NULL, -- Thread ID for grouping messages
+                    timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp);
+                CREATE INDEX IF NOT EXISTS idx_messages_phoneNumber ON messages(phoneNumber);
+                
+                CREATE TABLE IF NOT EXISTS call_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    phoneNumber TEXT NOT NULL,
+                    callType INTEGER NOT NULL, -- 0: Incoming, 1: Outgoing, 2: Missed
+                    duration INTEGER NOT NULL DEFAULT 0, -- Duration in seconds
+                    simSlot INTEGER NOT NULL DEFAULT 0,
+                    isRead INTEGER NOT NULL DEFAULT 0,  -- For Syncing the read status back to Android
+                    isNew INTEGER NOT NULL DEFAULT 0,   -- Only used for missed calls
+                    timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_call_logs_phoneNumber ON call_logs(phoneNumber);
+
+                CREATE TABLE IF NOT EXISTS gallery (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    mediaId TEXT NOT NULL,                -- Unique ID from Android's MediaStore
+                    fileName TEXT NOT NULL,
+                    filePath TEXT NOT NULL,              -- Relative path or Android URI
+                    mediaType TEXT CHECK(mediaType IN ('image', 'video')) DEFAULT 'image', -- Type of media
+                    mimeType TEXT NOT NULL,              -- jpeg, mp4 etc.
+                    size INTEGER NOT NULL,               -- File size in bytes
+                    width INTEGER,                       -- Media width (for images/videos)
+                    height INTEGER,                      -- Media height
+                    duration INTEGER DEFAULT 0,          -- Video duration in seconds (0 for images)
+                    dateTaken INTEGER NOT NULL,          -- Epoch time (when photo was taken)
+                    dateModified INTEGER,                -- Epoch time (last modified)
+                    isFavorite INTEGER DEFAULT 0,        -- Marked favorite in gallery
+                    synced INTEGER DEFAULT 0             -- 0 = not synced, 1 = synced
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_gallery_mediaId ON gallery(mediaId);
+
+                CREATE TABLE IF NOT EXISTS gallery_thumbnails (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    galleryId INTEGER NOT NULL,
+                    thumbnailBase64 TEXT NOT NULL,
+                    FOREIGN KEY (galleryId) REFERENCES gallery(id) ON DELETE CASCADE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_gallery_thumbnails_galleryId ON gallery_thumbnails(galleryId);
+
             ",
             kind: MigrationKind::Up,
         },
