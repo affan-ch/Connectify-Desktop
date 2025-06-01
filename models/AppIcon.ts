@@ -6,3 +6,8 @@ export interface AppIcon {
   appIconBase64: string;
   updatedAt?: number;
 }
+
+export interface AppInfo {
+  packageName: string;
+  packageVersion: string;
+}

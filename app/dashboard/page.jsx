@@ -25,14 +25,33 @@ const ChatPage = () => {
         }
     }, [loading, userData])
 
-    // Initialize peer connection
+    const hasInitialized = useRef(false);
+    
     useEffect(() => {
-        if (userData && peerConnectionRef.current == null) {
-            const loginToken = localStorage.getItem('token')
-            const deviceToken = localStorage.getItem('deviceToken')
-            initializeConnection(loginToken, deviceToken)
+        if (!loading && userData && !hasInitialized.current) {
+            const loginToken = localStorage.getItem('token');
+
+            const interval = setInterval(() => {
+                const deviceToken = localStorage.getItem('deviceToken');
+                const devices = localStorage.getItem('devices');
+
+                const ready = loginToken && deviceToken && devices;
+
+                if (ready) {
+                    console.log("✅ All tokens ready. Initializing WebRTC.");
+                    initializeConnection(loginToken, deviceToken);
+                    hasInitialized.current = true;
+                    clearInterval(interval);
+                } else {
+                    console.log("⏳ Waiting for deviceToken & devices...");
+                }
+            }, 200); // poll every 200ms
+
+            // Cleanup interval if component unmounts
+            return () => clearInterval(interval);
         }
-    }, [userData, peerConnectionRef])
+    }, [loading, userData]);
+
 
     // Update messages from receivedMessages
     useEffect(() => {

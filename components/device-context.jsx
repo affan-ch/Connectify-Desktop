@@ -39,6 +39,37 @@ export const DeviceProvider = ({ children }) => {
                         const deviceData = await deviceResponse.json();
                         localStorage.setItem('deviceToken', deviceData.deviceToken);
                         console.log('Device registered successfully');
+
+                        const verifyResponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/device/getAll`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `${token}`, // Login token is required for device verification
+                                'Device-Authorization': `${deviceData.deviceToken}`, // Device token is required for device verification
+                            },
+                        });
+
+                        if (verifyResponse.status === 200) {
+                            const result = await verifyResponse.json();
+                            if (result.success) {
+                                console.log('Device verified successfully');
+                                // Continue to dashboard or wherever user was heading
+                                localStorage.setItem('devices', JSON.stringify(result.devices));
+                            } else {
+                                console.log('Device verification failed');
+                                localStorage.removeItem('token');
+                                localStorage.removeItem('deviceToken');
+                                localStorage.removeItem('devices');
+                                router.push('/'); // Redirect to login if verification fails
+                            }
+                        } else {
+                            console.log('Error verifying device');
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('deviceToken');
+                            localStorage.removeItem('devices');
+                            router.push('/'); // Redirect to login on failure
+                        }
+
                     } else {
                         console.log('Error registering device');
                         localStorage.removeItem('token');
@@ -51,6 +82,7 @@ export const DeviceProvider = ({ children }) => {
                     localStorage.removeItem('deviceToken'); // Ensure no faulty token is stored
                     router.push('/'); // Redirect to login on error
                 } finally {
+                    console.log('Device registration process completed');
                     setLoading(false);
                 }
             } else {
