@@ -125,17 +125,41 @@ impl DeviceInfo {
     }
 }
 
+// fn get_output_of_command(cmd: &str, args: &[&str]) -> String {
+//     let output = Command::new(cmd)
+//         .args(args)
+//         .output()
+//         .expect("Failed to execute command");
+
+//     String::from_utf8_lossy(&output.stdout)
+//         .to_string()
+//         .trim()
+//         .to_string()
+// }
+
 fn get_output_of_command(cmd: &str, args: &[&str]) -> String {
     let output = Command::new(cmd)
         .args(args)
         .output()
         .expect("Failed to execute command");
 
-    String::from_utf8_lossy(&output.stdout)
-        .to_string()
-        .trim()
-        .to_string()
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+    // Split by lines, filter out empty or header lines, and pick the first value line
+    stdout
+        .lines()
+        .filter_map(|line| {
+            let trimmed = line.trim();
+            if trimmed.is_empty() || trimmed.starts_with(args.get(1).unwrap_or(&"")) {
+                None
+            } else {
+                Some(trimmed.to_string())
+            }
+        })
+        .next()
+        .unwrap_or_default()
 }
+
 
 #[cfg(any(target_os = "macos", target_os = "linux"))]
 fn extract_field(output: &str, pattern: &str) -> String {

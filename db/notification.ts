@@ -48,3 +48,8 @@ export async function deleteNotification(id: number): Promise<void> {
   const db = await getDb();
   await db.execute(`DELETE FROM notifications WHERE id = ?`, [id]);
 }
+
+export async function clearNotifications(): Promise<void> {
+  const db = await getDb();
+  await db.execute(`DELETE FROM notifications`);
+}

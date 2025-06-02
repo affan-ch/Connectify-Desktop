@@ -3,7 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard-sidebar"
 import GlobalProviders from "@/components/dashboard-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Send, MessageSquareText, Phone, LayoutGrid, Image as ImageIcon, Settings } from "lucide-react";
+import { Send, MessageSquareText, Phone, LayoutGrid, Image as ImageIcon, Settings, Contact } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -34,17 +34,22 @@ export default function DashboardLayout({ children }) {
 
                   <TabsTrigger value="photos" className="text-base">
                     <ImageIcon className="h-5 w-5 mr-2" />
-                    Photos
+                    Gallery
                   </TabsTrigger>
 
-                  <TabsTrigger value="calls" className="text-base">
+                  <TabsTrigger value="calls" className="text-base" onClick={() => router.push("/dashboard/calls")}>
                     <Phone className="h-5 w-5 mr-2" />
                     Calls
                   </TabsTrigger>
 
-                  <TabsTrigger value="apps" className="text-base">
+                  <TabsTrigger value="apps" className="text-base" onClick={() => router.push("/dashboard/apps")}>
                     <LayoutGrid className="h-5 w-5 mr-2" />
                     Apps
+                  </TabsTrigger>
+
+                  <TabsTrigger value="contacts" className="text-base" onClick={() => router.push("/dashboard/contacts")}>
+                    <Contact className="h-5 w-5 mr-2" />
+                    Contacts
                   </TabsTrigger>
                 </TabsList>
 

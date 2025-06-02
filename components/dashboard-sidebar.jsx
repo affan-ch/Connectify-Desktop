@@ -121,13 +121,7 @@ export function AppSidebar() {
                 <Separator />
 
             </SidebarHeader>
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupContent>
-                            <NotificationPanel />
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
+            <NotificationPanel/>
         </Sidebar>
     )
 }

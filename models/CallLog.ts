@@ -1,10 +1,11 @@
 export interface CallLog {
   id?: number;
   phoneNumber: string;
-  callType: number;
-  duration?: number;
+  contactName?: string;
+  callType: string; // 'incoming', 'outgoing', 'missed'
+  duration: number;
   simSlot?: number;
   isRead?: number;
   isNew?: number;
-  timestamp?: number;
+  timestamp: number;
 }

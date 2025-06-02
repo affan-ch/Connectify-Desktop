@@ -8,3 +8,9 @@ export interface Notification {
   iconId: number;
   postTime: number;
 }
+
+export interface Action {
+  index: number
+  isReplyable: boolean
+  title: string
+}

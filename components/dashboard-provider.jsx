@@ -5,6 +5,7 @@ import { DeviceProvider } from "@/components/device-context";
 import { WebRTCProvider } from "@/components/webrtc-helper";
 import { useEffect, useState } from "react";
 import Loader from "./loader";
+import { ClipboardMonitorProvider } from "@/components/clipboard-context";
 
 export default function GlobalProviders({ children }) {
   const [devices, setDevices] = useState(null); // null means "not loaded yet"
@@ -39,7 +40,9 @@ export default function GlobalProviders({ children }) {
     <AuthProvider>
       <DeviceProvider>
         <WebRTCProvider devices={devices}>
+          <ClipboardMonitorProvider>
           {children}
+          </ClipboardMonitorProvider>
         </WebRTCProvider>
       </DeviceProvider>
     </AuthProvider>

@@ -59,3 +59,8 @@ export async function deleteContact(id: number): Promise<void> {
   const db = await getDb();
   await db.execute(`DELETE FROM contacts WHERE id = ?`, [id]);
 }
+
+export async function clearContacts(): Promise<void> {
+  const db = await getDb();
+  await db.execute(`DELETE FROM contacts`);
+}

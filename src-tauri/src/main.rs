@@ -7,7 +7,7 @@ use tauri::command;
 #[allow(unused_imports)]
 use tauri::Manager;
 use tauri_plugin_sql::{Builder as SqlPluginBuilder, Migration, MigrationKind};
-
+use tauri_plugin_clipboard_manager;
 #[command]
 fn get_device_info() -> DeviceInfo {
     DeviceInfo::get_device_info()
@@ -117,10 +117,11 @@ fn main() {
                 CREATE TABLE IF NOT EXISTS call_logs (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     phoneNumber TEXT NOT NULL,
-                    callType INTEGER NOT NULL, -- 0: Incoming, 1: Outgoing, 2: Missed
+                    contactName TEXT, -- Name of the contact or group
+                    callType TEXT NOT NULL, -- 'incoming', 'outgoing', 'missed'
                     duration INTEGER NOT NULL DEFAULT 0, -- Duration in seconds
                     simSlot INTEGER NOT NULL DEFAULT 0,
-                    isRead INTEGER NOT NULL DEFAULT 0,  -- For Syncing the read status back to Android
+                    isRead INTEGER,  -- For Syncing the read status back to Android
                     isNew INTEGER NOT NULL DEFAULT 0,   -- Only used for missed calls
                     timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
                 );
@@ -167,6 +168,7 @@ fn main() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(
             SqlPluginBuilder::default()
                 .add_migrations("sqlite:connectify.db", migrations)

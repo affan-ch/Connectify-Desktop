@@ -10,13 +10,13 @@ export async function createMessage(message: Message): Promise<void> {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       message.phoneNumber,
-      message.contactName,
+      message.contactName ?? "",
       message.content,
-      message.contentType,
+      message.contentType ?? 1,
       message.sender,
-      message.status ?? 0,
-      message.isRead ?? 0,
-      message.simSlot ?? 0,
+      message.status ?? 1,
+      message.isRead ?? 1,
+      message.simSlot ?? 1,
       message.threadId,
       message.timestamp ?? Math.floor(Date.now() / 1000),
     ]
@@ -57,4 +57,9 @@ export async function updateMessage(id: number, updates: Partial<Message>): Prom
 export async function deleteMessage(id: number): Promise<void> {
   const db = await getDb();
   await db.execute(`DELETE FROM messages WHERE id = ?`, [id]);
+}
+
+export async function clearMessages(): Promise<void> {
+  const db = await getDb();
+  await db.execute(`DELETE FROM messages`);
 }

@@ -28,7 +28,7 @@ const ChatPage = () => {
     const hasInitialized = useRef(false);
     
     useEffect(() => {
-        if (!loading && userData && !hasInitialized.current) {
+        if (!loading && userData && !hasInitialized.current && peerConnectionRef.current === null) {
             const loginToken = localStorage.getItem('token');
 
             const interval = setInterval(() => {

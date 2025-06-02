@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useRef, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import { storeDeviceStateFields } from './dataStore';
+import { getAppIconsList, storeAppIcon, getAppIconById, getAppIconByPackageName } from '@/db/appIcon';
+import { clearContacts, createContact } from '@/db/contact';
+import { clearCallLogs, createCallLog, insertCallLogsBatch } from '@/db/callLog';
+import { createNotification, clearNotifications } from '@/db/notification';
+import { clearMessages, createMessage } from '@/db/message';
 
 const WebRTCContext = createContext();
 
@@ -35,6 +41,7 @@ export const WebRTCProvider = ({ children, devices }) => {
   }, [offerSdp, devices]);
 
   const clearWebRTC = () => {
+    console.log('Clearing WebRTC state');
     peerConnectionRef.current = null;
     dataChannelRef.current = null;
     setOfferSdp('');
@@ -48,7 +55,12 @@ export const WebRTCProvider = ({ children, devices }) => {
     setDeviceInfo('');
   };
 
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   const setupWebRTC = async () => {
+    console.log('Setting up WebRTC connection');
 
     const config = {
       iceServers: [
@@ -71,12 +83,19 @@ export const WebRTCProvider = ({ children, devices }) => {
 
     // Create data channel and handle its state
     dataChannelRef.current = peerConnectionRef.current.createDataChannel('sendChannel');
-    dataChannelRef.current.onopen = () => console.log('Data channel is open');
+    dataChannelRef.current.onopen = async () => {
+      console.log('Data channel is open');
+      // get app icons and send them over the data channel
+      const appIcons = await getAppIconsList();
+
+      dataChannelRef.current.send(JSON.stringify({ type: 'AppIcon:Request', content: appIcons }));
+
+    };
     dataChannelRef.current.onclose = () => {
       console.log('Data channel is closed');
       clearWebRTC();
     }
-    dataChannelRef.current.onmessage = (event) => {
+    dataChannelRef.current.onmessage = async (event) => {
       let message = JSON.parse(event.data);
       console.log('Received message:', message);
 
@@ -87,10 +106,74 @@ export const WebRTCProvider = ({ children, devices }) => {
       } else if (message.type === 'Notification:AllActive') {
         console.log("All Active Notifications:", message);
         setAllActiveNotifications([message]);
+
+        await clearNotifications();
+        console.log("Cleared all notifications from database");
+        let notifications = JSON.parse(message.content);
+        for (let notification of notifications) {
+          console.log("Processing notification:", notification);
+          if (!notification.packageName || !notification.appName) {
+            continue;
+          }
+          if (notification.title == null){
+            continue;
+          }
+          if(notification.packageName == notification.appName){
+            continue;
+          }
+          const iconId = await getAppIconByPackageName(notification.packageName);
+          if (!iconId) {
+            continue;
+          }
+          notification.iconId = iconId.id;
+          await createNotification(notification);
+        }
       } else if (message.type === 'DeviceStateInfo') {
         console.log("Device State Info:", message);
+        let content = JSON.parse(message.content);
+        await storeDeviceStateFields(content);
         setDeviceInfo(message);
-      } else {
+      }
+      else if (message.type === 'AppIcon:SinglePackage') {
+        console.log("Received single app icon package:", message);
+
+        let { appName, packageName, packageVersion, appIconBase64 } = JSON.parse(message.content);
+
+        await storeAppIcon({ appName, packageName, packageVersion, appIconBase64 });
+        console.log(`App icon for ${appName} stored successfully.`);
+      }
+      else if (message.type === 'Contacts') {
+        const contacts = JSON.parse(message.content);
+        await clearContacts();
+        contacts.forEach(async (contact) => {
+          await createContact(contact);
+          await delay(10); // Small delay to avoid overwhelming the database
+        });
+      }
+      else if (message.type === 'CallLogs') {
+        const callLogs = JSON.parse(message.content);
+        console.log("Received call logs:", callLogs);
+        await clearCallLogs();
+        callLogs.forEach(async (log) => {
+          await createCallLog(log);
+          await delay(10); // Small delay to avoid overwhelming the database
+        });
+      }
+      else if(message.type == 'Gallery:Folders'){
+        const galleryData = JSON.parse(message.content);
+        console.log("Received gallery data:", galleryData);
+      }
+      else if(message.type == 'Messages'){
+        const messages = JSON.parse(message.content);
+        console.log("Received messages:", messages);
+        await clearMessages();
+
+        for (const message of messages) {
+          await createMessage(message);
+          await delay(10); // Small delay to avoid overwhelming the database
+        }
+      }
+      else {
         setReceivedMessages((prev) => [...prev, message]);
       }
     }
@@ -107,6 +190,8 @@ export const WebRTCProvider = ({ children, devices }) => {
 
   // Establish a connection and create WebRTC offer
   const initializeConnection = async (loginToken, deviceToken) => {
+    console.log('Initializing WebRTC connection');
+
     setLoginToken(loginToken);
     setDeviceToken(deviceToken);
 
